@@ -1,5 +1,5 @@
 <%
-' Classic ASP CSV creator
+' Classic ASP CSV creator 0.3
 ' By RCDMK <rcdmk@rcdmk.com>
 '
 ' The MIT License (MIT) - http://opensource.org/licenses/MIT
