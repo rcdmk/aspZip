@@ -1,6 +1,6 @@
 <%
 option explicit
-Server.scriptTimeout = 10
+Server.scriptTimeout = 1
 %>
 <!--#include file="../src/aspZip.class.asp" -->
 <%
@@ -12,11 +12,12 @@ set zip = new aspZip
 
 zip.OpenArquieve(filepath)
 
-'zip.AddFile("../src")
+zip.Add("..\src")
+zip.Add(".\default.asp")
 
-'zip.CloseArquieve()
+zip.CloseArquieve()
 
-zip.Extract(".\test")
+zip.ExtractTo(".\test")
 
 set zip = nothing
 %>

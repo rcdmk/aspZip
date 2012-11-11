@@ -21,7 +21,8 @@
 ' OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 class aspZip
-	dim BlankZip, fso, curArquieve
+	dim BlankZip, NoInterfaceYesToAll
+	dim fso, curArquieve, created, saved
 	dim files, m_path, zipApp, zipFile	
 	
 	public property get Count()
@@ -34,11 +35,10 @@ class aspZip
 	
 	
 	private sub class_initialize()
-		dim x
+		BlankZip = Chr(80) & Chr(75) & Chr(5) & Chr(6) & String(18, 0) 	' Create the blank file structure
+		NoInterfaceYesToAll = 4 or 16 or 1024 ' http://msdn.microsoft.com/en-us/library/windows/desktop/bb787866(v=vs.85).aspx
 		
-		' Create the blank file structure
-		BlankZip = Chr(80) & Chr(75) & Chr(5) & Chr(6) & String(18, 0)
-		
+		' initialize components
 		set fso = createObject("scripting.filesystemobject")
 		set files = createObject("Scripting.Dictionary")
 		
@@ -46,24 +46,31 @@ class aspZip
 	end sub
 	
 	private sub class_terminate()
-		if typeName(curArquieve) = "TextStream" then
+		' some cleanup
+		set curArquieve = nothing
+		set zipApp = nothing
+		set files = nothing
+		
+		' If we created the file but did not saved it, delete it
+		' since its empty
+		if created and not saved then
 			on error resume next
-			curArquieve.close
-			err.clear
+			fso.deleteFile m_path
 			on error goto 0
 		end if
 		
-		set curArquieve = nothing
 		set fso = nothing
-		set files = nothing
-		set zipApp = nothing
 	end sub
 	
 	
+	' Opens or creates the arquieve
 	public sub OpenArquieve(byval path)
 		dim file
+		' Make sure the path is complete and in a correct format
+		path = replace(path, "/", "\")
 		m_path = Server.MapPath(path)
 		
+		' Create an empty file if it already doesn't exists
 		if not fso.fileexists(m_path) then
 			set file = fso.createTextFile(m_path)
 			file.write BlankZip
@@ -71,65 +78,83 @@ class aspZip
 			set file = nothing
 			
 			set curArquieve = zipApp.NameSpace(m_path)
+			created = true
 		else
+			' Open the existing file and load its contents
+			
 			dim cnt
 			set curArquieve = zipApp.NameSpace(m_path)
 			
 			cnt = 0
 			for each file in curArquieve.Items
 				cnt = cnt + 1
-				files.add file, cnt
+				files.add file.path, cnt
 			next
 		end if
+
+		saved = false
 	end sub
 	
-	public sub AddFile(byval path)
-		path = replace(Server.mappath(path), "/", "\")
+	
+	' Add a file or folder to the list
+	public sub Add(byval path)
+		path = replace(path, "/", "\")		
+		if instr(path, ":") = 0 then path = Server.mappath(path)
+		
 		if not fso.fileExists(path) and not fso.folderExists(path) then
 			err.raise 1, "File not exists", "The input file name doen't correspond to an existing file"
-		else
-			if not files.exists(path) Then
-				files.add path, files.Count + 1
-			end if
+			
+		elseif not files.exists(path) Then
+			files.add path, files.Count + 1
 		end if
 	end sub
 	
-	public sub RemoveFile(byval path)
+	' Remove a file or folder from the to be added list (currently it only works for new files)
+	public sub Remove(byval path)
 		if files.exists(path) then files.Remove(path)
 	end sub
 	
+	' Clear the to be added list
 	public sub RemoveAll()
 		files.RemoveAll()
 	end sub
 	
+	' Writes the to the arquieve
 	public sub CloseArquieve()
 		dim filepath, file, initTime, fileCount
-		
+		dim cnt
+		cnt = 0
+
 		For Each filepath In files.keys
-			curArquieve.Copyhere filepath
-			fileCount = curArquieve.items.Count
-			
-			'Keep script waiting until Compressing is done
-			On Error Resume Next
-			Do Until fileCount < curArquieve.Items.Count
-				initTime = now
-				while (now - initTime) < 1
-					' Wait for the file to be added
-				wend
-			Loop
-			On Error GoTo 0
+			' do not try add the contents that are already in the arquieve
+			if instr(filepath, m_path) = 0 then
+				curArquieve.Copyhere filepath, NoInterfaceYesToAll
+				fileCount = curArquieve.items.Count
+				
+				'Keep script waiting until Compressing is done
+				On Error Resume Next
+				'Do Until fileCount < curArquieve.Items.Count
+					wscript.sleep(10)
+					cn = cnt + 1
+				'Loop
+				On Error GoTo 0
+			end if
 		next
+		
+		saved = true
 	end sub
 	
 	
-	public sub Extract(byval path)
-		path = Server.MapPath(path)
-		
-		if not fso.folderExists(path) then
-			fso.createFolder(path)
+	public sub ExtractTo(byval path)
+		if typeName(curArquieve) = "Folder3" Then
+			path = Server.MapPath(path)
+			
+			if not fso.folderExists(path) then
+				fso.createFolder(path)
+			end if
+			
+			zipApp.NameSpace(path).CopyHere curArquieve.Items, NoInterfaceYesToAll
 		end if
-		
-		zipApp.NameSpace(path).Copyhere curArquieve.Items
 	end sub
 end class
 %>
