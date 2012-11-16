@@ -1,4 +1,4 @@
-#Classic ASP CSV creator 0.3
+#Classic ASP ZIP file creator 0.3
 
 ##The MIT License (MIT) - http://opensource.org/licenses/MIT
 
@@ -30,7 +30,7 @@ Include the class file in the desired page and instantiate the class
     dim zip
     set zip = new aspZip
 
-You can open a ZIP file
+Open a ZIP file (create or open an existing file in disk)
 	
     zip.OpenArquieve("path\to\file.zip") ' this creates the arquieve if it doesn't exists
 
@@ -39,7 +39,7 @@ Add some files or folders
     zip.Add("..\src")
     zip.Add(".\default.asp")
     
-Write the file to disk
+Write the files to disk
 
     zip.CloseArquieve()
 
@@ -47,10 +47,11 @@ If you want to extract the contents of a ZIP file, use the `ExtractTo(Destinatio
 
     zip.ExtractTo(".\test")
 
+If the archieve contains no files, it will be deleted when the object is destroyed.
+	
 >**Note:**  
 >In the current release (0.3) it only extracts the folder strutucture from the file. There are
 some "mysterious" things happening when extracting that I could not bypass. Some kind of
 access restriction imposed by Windows that even giving "Full control" access to the IIS users
 it still gives the error and hangs, so I just ignored the erros for it to work without crashing
 the server.
-    set zip = nothing
