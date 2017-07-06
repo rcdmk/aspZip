@@ -1,6 +1,6 @@
-#Classic ASP ZIP file creator 0.3
+# Classic ASP ZIP file creator 0.3
 
-##The MIT License (MIT) - http://opensource.org/licenses/MIT
+## The MIT License (MIT) - http://opensource.org/licenses/MIT
 
 Copyright (c) 2012 RCDMK &lt;rcdmk@rcdmk.com&gt;
 
@@ -23,7 +23,7 @@ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
 SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 
-##Usage
+## Usage
 
 Include the class file in the desired page and instantiate the class
 
