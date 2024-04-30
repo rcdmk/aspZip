@@ -22,8 +22,8 @@
 
 class aspZip
 	dim BlankZip, NoInterfaceYesToAll
-	dim fso, curArquieve, created, saved
-	dim files, m_path, zipApp, zipFile	
+	dim fso, curArchieve, created, saved
+	dim files, m_path, zipApp, zipFile, oShell	
 	
 	public property get Count()
 		Count = files.Count
@@ -43,6 +43,7 @@ class aspZip
 		set files = createObject("Scripting.Dictionary")
 		
 		Set zipApp = CreateObject("Shell.Application")
+		set oShell = CreateObject("Wscript.Shell")
 	end sub
 	
 	private sub class_terminate()
@@ -130,6 +131,12 @@ class aspZip
 		CloseArchieve
 	end sub
 
+	private sub Sleep(byval milliseconds)
+		dim cmd
+		cmd = "%COMSPEC% /c ping 127.0.0.1 -n 1 -w " & milliseconds & "> nul"
+		oShell.Run cmd,0,1
+	End sub
+
 
 	' Writes the to the archieve
 	public sub CloseArchieve()
@@ -146,7 +153,7 @@ class aspZip
 				'Keep script waiting until Compressing is done
 				On Error Resume Next
 				'Do Until fileCount < curArchieve.Items.Count
-					wscript.sleep(10)
+					sleep 500
 					cn = cnt + 1
 				'Loop
 				On Error GoTo 0
@@ -164,6 +171,7 @@ class aspZip
 			
 			if not fso.folderExists(path) then
 				fso.createFolder(path)
+				sleep 500 ' wait for folder to be created
 			end if
 			
 			zipApp.NameSpace(path).CopyHere curArchieve.Items, NoInterfaceYesToAll
