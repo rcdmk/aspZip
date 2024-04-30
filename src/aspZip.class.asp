@@ -36,7 +36,7 @@ class aspZip
 	
 	private sub class_initialize()
 		BlankZip = Chr(80) & Chr(75) & Chr(5) & Chr(6) & String(18, 0) 	' Create the blank file structure
-		NoInterfaceYesToAll = 4 or 16 or 1024 ' http://msdn.microsoft.com/en-us/library/windows/desktop/bb787866(v=vs.85).aspx
+		NoInterfaceYesToAll = 4 or 16 or 512 or 1024 ' http://msdn.microsoft.com/en-us/library/windows/desktop/bb787866(v=vs.85).aspx
 		
 		' initialize components
 		set fso = createObject("scripting.filesystemobject")
