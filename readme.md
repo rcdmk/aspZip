@@ -32,7 +32,7 @@ Include the class file in the desired page and instantiate the class
 
 Open a ZIP file (create or open an existing file in disk)
 	
-    zip.OpenArquieve("path\to\file.zip") ' this creates the arquieve if it doesn't exists
+    zip.OpenArchieve("path\to\file.zip") ' this creates the archieve if it doesn't exists
 
 Add some files or folders
 
@@ -41,7 +41,7 @@ Add some files or folders
     
 Write the files to disk
 
-    zip.CloseArquieve()
+    zip.CloseArchieve()
 
 If you want to extract the contents of a ZIP file, use the `ExtractTo(DestinationPath)` method
 

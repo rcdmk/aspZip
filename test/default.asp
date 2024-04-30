@@ -10,12 +10,12 @@ filepath = "test.zip"
 
 set zip = new aspZip
 
-zip.OpenArquieve(filepath)
+zip.OpenArchieve(filepath)
 
 zip.Add("..\src")
 zip.Add(".\default.asp")
 
-zip.CloseArquieve()
+zip.CloseArchieve()
 
 zip.ExtractTo(".\test")
 

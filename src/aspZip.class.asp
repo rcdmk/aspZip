@@ -47,7 +47,7 @@ class aspZip
 	
 	private sub class_terminate()
 		' some cleanup
-		set curArquieve = nothing
+		set curArchieve = nothing
 		set zipApp = nothing
 		set files = nothing
 		
@@ -63,30 +63,35 @@ class aspZip
 	end sub
 	
 	
-	' Opens or creates the arquieve
+	' Opens or creates the archieve (kept for retro compatibility)
 	public sub OpenArquieve(byval path)
+		OpenArchieve path
+	end sub
+
+	' Opens or creates the archieve
+	public sub OpenArchieve(byval path)
 		dim file
 		' Make sure the path is complete and in a correct format
 		path = replace(path, "/", "\")
 		m_path = Server.MapPath(path)
 		
-		' Create an empty file if it already doesn't exists
-		if not fso.fileexists(m_path) then
+		' Create an empty file if it already doesn't exist
+		if not fso.fileExists(m_path) then
 			set file = fso.createTextFile(m_path)
 			file.write BlankZip
 			file.close()
 			set file = nothing
 			
-			set curArquieve = zipApp.NameSpace(m_path)
+			set curArchieve = zipApp.NameSpace(m_path)
 			created = true
 		else
 			' Open the existing file and load its contents
 			
 			dim cnt
-			set curArquieve = zipApp.NameSpace(m_path)
+			set curArchieve = zipApp.NameSpace(m_path)
 			
 			cnt = 0
-			for each file in curArquieve.Items
+			for each file in curArchieve.Items
 				cnt = cnt + 1
 				files.add file.path, cnt
 			next
@@ -102,7 +107,7 @@ class aspZip
 		if instr(path, ":") = 0 then path = Server.mappath(path)
 		
 		if not fso.fileExists(path) and not fso.folderExists(path) then
-			err.raise 1, "File not exists", "The input file name doen't correspond to an existing file"
+			err.raise 1, "File not exists", "The input file name doesn't correspond to an existing file"
 			
 		elseif not files.exists(path) Then
 			files.add path, files.Count + 1
@@ -119,21 +124,28 @@ class aspZip
 		files.RemoveAll()
 	end sub
 	
-	' Writes the to the arquieve
+	
+	' Writes the to the archieve (kept for retro compatibility)
 	public sub CloseArquieve()
+		CloseArchieve
+	end sub
+
+
+	' Writes the to the archieve
+	public sub CloseArchieve()
 		dim filepath, file, initTime, fileCount
 		dim cnt
 		cnt = 0
 
 		For Each filepath In files.keys
-			' do not try add the contents that are already in the arquieve
+			' do not try add the contents that are already in the archieve
 			if instr(filepath, m_path) = 0 then
-				curArquieve.Copyhere filepath, NoInterfaceYesToAll
-				fileCount = curArquieve.items.Count
+				curArchieve.Copyhere filepath, NoInterfaceYesToAll
+				fileCount = curArchieve.items.Count
 				
 				'Keep script waiting until Compressing is done
 				On Error Resume Next
-				'Do Until fileCount < curArquieve.Items.Count
+				'Do Until fileCount < curArchieve.Items.Count
 					wscript.sleep(10)
 					cn = cnt + 1
 				'Loop
@@ -146,14 +158,15 @@ class aspZip
 	
 	
 	public sub ExtractTo(byval path)
-		if typeName(curArquieve) = "Folder3" Then
+		path = replace(path, "/", "\")
+		if typeName(curArchieve) = "Folder3" Then
 			path = Server.MapPath(path)
 			
 			if not fso.folderExists(path) then
 				fso.createFolder(path)
 			end if
 			
-			zipApp.NameSpace(path).CopyHere curArquieve.Items, NoInterfaceYesToAll
+			zipApp.NameSpace(path).CopyHere curArchieve.Items, NoInterfaceYesToAll
 		end if
 	end sub
 end class
